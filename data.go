@@ -1,4 +1,4 @@
-package periquery
+package main
 
 type Pericopes struct {
 	Date    string

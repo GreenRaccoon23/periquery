@@ -1,4 +1,4 @@
-package periquery
+package main
 
 import (
 	"bytes"
