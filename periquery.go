@@ -6,7 +6,6 @@ import (
 	//"github.com/PuerkitoBio/goquery"
 	//"github.com/fatih/color"
 	"log"
-	//"os"
 	"net/url"
 	"os/exec"
 	"runtime"
