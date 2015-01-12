@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	"fmt"
 	//"github.com/PuerkitoBio/goquery"
 	//"github.com/fatih/color"
 	"log"
@@ -107,8 +106,9 @@ func urlGen(items [][]string) string {
 }
 
 func urlBrowse(passages [][]string) {
+	defer ColEnd()
+	BWhite.Println("Launching pericopes in webbrowser...")
 	url := urlGen(passages)
-	fmt.Println(url)
 	switch runtime.GOOS {
 	case "linux":
 		_ = exec.Command("xdg-open", url).Start()
