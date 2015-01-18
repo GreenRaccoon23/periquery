@@ -1,7 +1,5 @@
 package main
 
-import "github.com/fatih/color"
-
 type Pericopes struct {
 	Date    string
 	Psalm   []string
@@ -11,16 +9,6 @@ type Pericopes struct {
 }
 
 var (
-	Red                      = color.New(color.FgRed)
-	Blue                     = color.New(color.FgBlue)
-	Green                    = color.New(color.FgGreen)
-	White                    = color.New(color.FgWhite)
-	Black                    = color.New(color.FgBlack)
-	BRed                     = color.New(color.FgRed, color.Bold)
-	BBlue                    = color.New(color.FgBlue, color.Bold)
-	BGreen                   = color.New(color.FgGreen, color.Bold)
-	BWhite                   = color.New(color.Bold, color.FgWhite)
-	BBlack                   = color.New(color.Bold, color.FgBlack)
 	PericopeData []Pericopes = []Pericopes{
 		{"2014-11-30", []string{"Psalm 80:1-7"}, []string{"Isaiah 64:1-9"}, []string{"1 Corinthians 1:3-9"}, []string{"Mark 11:1-10", "Mark 13:24-37"}},
 		{"2014-12-07", []string{"Psalm 85"}, []string{"Isaiah 40:1-11"}, []string{"2 Peter 3:8-14"}, []string{"Mark 1:1-8"}},
@@ -91,6 +79,19 @@ var (
 	}
 )
 
-func ColEnd() {
-	color.Unset()
+func str(slice []string) string {
+	for _, s := range slice {
+		buffer.WriteString(s)
+	}
+	concatenated := buffer.String()
+	buffer.Reset()
+	return concatenated
+}
+
+func slc(args ...string) []string {
+	return args
+}
+
+func combine(args ...string) string {
+	return str(args)
 }

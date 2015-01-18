@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	//"github.com/PuerkitoBio/goquery"
 	//"github.com/fatih/color"
+	"bytes"
 	"log"
 	"net/url"
 	"os/exec"
@@ -17,37 +17,38 @@ const layout string = "2006-01-02"
 var (
 	buffer      bytes.Buffer
 	translation string
-	baseUrl     []string
+	baseUrl     string
 	date        string
 	browse      bool
 	globalPos   int
 )
 
 func init() {
-	flag.StringVar(&translation, "t", "ESV", "translation abbreviation")
-	flag.StringVar(&date, "d", time.Now().Format(layout), "date to search")
-	flag.BoolVar(&browse, "b", false, "launch pericopes in webbrowser")
+	flag.StringVar(&translation, "t", "ESV", "Translation to use")
+	flag.StringVar(&date, "d", time.Now().Format(layout), "Date to search in lectionary")
+	flag.BoolVar(&browse, "b", false, "Launch found pericopes in a webbrowser")
 	flag.Parse()
 	preUrl := "https://www.biblegateway.com/passage/?version="
 	midUrl := "&search="
-	baseUrl = []string{preUrl, translation, midUrl}
+	baseUrl = combine(preUrl, translation, midUrl)
 }
 
-func str(slice []string) string {
-	for _, s := range slice {
-		buffer.WriteString(s)
+func main() {
+	defer ColEnd()
+	Line(Black)
+	dateQuery()
+	data := PericopeData[globalPos]
+	passages := [][]string{
+		data.Psalm,
+		data.First,
+		data.Epistle,
+		data.Gospel,
 	}
-	concatenated := buffer.String()
-	buffer.Reset()
-	return concatenated
-}
-
-func slc(args ...string) []string {
-	return args
-}
-
-func combine(args ...string) string {
-	return str(append(args))
+	DisplayPericopes(passages)
+	if browse == true {
+		urlBrowse(passages)
+	}
+	Line(Black)
 }
 
 func dateLoop(query string) string {
@@ -78,8 +79,24 @@ func dateQuery() {
 		}
 	}
 	date = found
-	BGreen.Printf("Date: ")
+	BGreen.Printf("Lectionary Date: ")
 	Blue.Println(found)
+	return
+}
+
+func urlBrowse(passages [][]string) {
+	url := urlGen(passages)
+	switch runtime.GOOS {
+	case "linux":
+		_ = exec.Command("xdg-open", url).Start()
+	case "windows", "darwin":
+		_ = exec.Command("open", url).Start()
+	}
+}
+
+func urlGen(items [][]string) (url string) {
+	encoded := urlEncode(items)
+	url = combine(baseUrl, encoded)
 	return
 }
 
@@ -93,56 +110,4 @@ func urlEncode(items [][]string) string {
 	combined := str(formatted)
 	encoded := url.QueryEscape(combined)
 	return encoded
-}
-
-func urlGen(items [][]string) string {
-	encoded := urlEncode(items)
-	urlSlice := append(baseUrl, encoded)
-	for _, s := range urlSlice {
-		buffer.WriteString(s)
-	}
-	return buffer.String()
-}
-
-func urlBrowse(passages [][]string) {
-	defer ColEnd()
-	BWhite.Println("Launching pericopes in webbrowser...")
-	url := urlGen(passages)
-	switch runtime.GOOS {
-	case "linux":
-		_ = exec.Command("xdg-open", url).Start()
-	case "windows", "darwin":
-		_ = exec.Command("open", url).Start()
-	}
-}
-
-func main() {
-	defer ColEnd()
-	BGreen.Printf("Translation: ")
-	BWhite.Println(translation)
-	BBlack.Printf("==> ")
-	White.Printf("Searching lectionary for date closest to ")
-	BWhite.Printf("%s...\n", date)
-	dateQuery()
-	data := PericopeData[globalPos]
-	passages := [][]string{
-		data.Psalm,
-		data.First,
-		data.Epistle,
-		data.Gospel,
-	}
-	BGreen.Printf("Pericopes: ")
-	i := len(passages) - 1
-	for p := 0; p < len(passages); p++ {
-		for s := 0; s < len(passages[p]); s++ {
-			if p < i {
-				Blue.Printf("%s, ", passages[p][s])
-			} else {
-				Blue.Printf("%s\n", passages[p][s])
-			}
-		}
-	}
-	if browse == true {
-		urlBrowse(passages)
-	}
 }
