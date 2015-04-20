@@ -1,8 +1,12 @@
 package main
 
 import (
-	"github.com/fatih/color"
+	"bufio"
+	"fmt"
+	"os"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 var (
@@ -18,34 +22,191 @@ var (
 	BMagenta = color.New(color.FgMagenta, color.Bold)
 	BWhite   = color.New(color.Bold, color.FgWhite)
 	BBlack   = color.New(color.Bold, color.FgBlack)
+	ColOff   = func() { color.Unset() }
 )
 
-func Break(c *color.Color, s string) {
-	c.Println(strings.Repeat(s, 79))
+func Log(err error) {
+	fmt.Println(err)
+}
+
+func LogErr(err error) {
+	if err == nil {
+		return
+	}
+	Log(err)
+}
+
+func ColSet(c *color.Color) {
+	if doColor {
+		c.Set()
+	}
+}
+
+func ImgINRI() {
+	defer ColOff()
+	ColSet(Red)
+	image := []string{
+		"              .======.              ",
+		"              | INRI |              ",
+		"              |      |              ",
+		"              |      |              ",
+		"     .========'      '========.     ",
+		"     |   _      xxxx      _   |     ",
+		"     |  /_;-.__ / _\\  _.-;_\\  |     ",
+		"     |     `-._`'`_/'`.-'     |     ",
+		"     '========.`\\   /`========'     ",
+		"              | |  / |              ",
+		"              |/-.(  |              ",
+		"              |\\_._\\ |              ",
+		"              | \\ \\`;|              ",
+		"              |  > |/|              ",
+		"              | / // |              ",
+		"              | |//  |              ",
+		"              | \\(\\  |              ",
+		"              |  ``  |              ",
+		"              |      |              ",
+		"              |      |              ",
+		"              |      |              ",
+		"              |      |              ",
+		"  \\\\jgs _  _\\\\| \\//  |//_   _ \\// _ ",
+		" ^ `^`^ ^`` `^ ^` ``^^`  `^^` `^ `^ ",
+	}
+
+	PrintSlc(image)
+}
+
+func PrintSlc(sl []string) {
+	for _, st := range sl {
+		PrintCLn(st)
+	}
+}
+
+func PrintCLn(st string) {
+	sl := strings.Split(st, "\n")
+	for _, s := range sl {
+		PrintC(s)
+	}
+}
+
+func PrintC(t string) {
+	w := 39 - len(t)/2
+	s := strings.Repeat(" ", w)
+	fmt.Printf("%v%v%v\n", s, t, s)
+}
+
+func Break(s string) {
+	fmt.Println(strings.Repeat(s, 79))
 }
 
 func Line(c *color.Color) {
-	Break(c, "-")
+	defer ColOff()
+	ColSet(c)
+	Break("-")
 }
 
 func BLine(c *color.Color) {
-	Break(c, "=")
+	defer ColOff()
+	ColSet(c)
+	Break("=")
 }
 
-func ColEnd() {
-	color.Unset()
+func Help() {
+	defer os.Exit(0)
+	fmt.Printf(
+		"%v\n  %v%v%v\n%v\n  %v\n%v\n  %v\n%v\n  %v\n%v\n",
+		"periquery <options>",
+		"-d=", today, ": (date)",
+		"      Date to search in the lectionary",
+		"-t=ESV: (translation)",
+		"      Translation to use",
+		"-l=false: (list)",
+		"      List all dates in the lectionary, starting with the one closest to the date specified in '-d'",
+		"-b=false: (browse)",
+		"      Launch found pericopes in a webbrowser",
+	)
 }
 
-func DisplayPericopes(passages [][]string) {
-	BGreen.Printf("Pericopes: ")
-	i := len(passages) - 1
-	for p := 0; p < len(passages); p++ {
-		for s := 0; s < len(passages[p]); s++ {
-			if p < i {
-				Blue.Printf("%s, ", passages[p][s])
-			} else {
-				Blue.Printf("%s\n", passages[p][s])
-			}
+func DListFrom(iStart int) {
+	defer ColOff()
+	iEnd := len(Lectionary) - 1 //65
+	for i := iEnd; i >= iStart; i-- {
+		d := Lectionary[i].Date
+		n := i - iStart + 1
+
+		if n < 10 {
+			fmt.Printf(" ")
 		}
+
+		ColSet(BGreen)
+		fmt.Printf("  %d:  ", n)
+		ColSet(Blue)
+		fmt.Println(d)
 	}
+}
+
+func DChoose(iStart int) (date string) {
+	defer ColOff()
+	DListFrom(iStart)
+
+	Line(Blue)
+	ColSet(BGreen)
+	fmt.Printf("Select date:\n    -> ")
+
+	choice := Input(BGreen)
+	BLine(BGreen)
+	chkChoice(choice)
+
+	i := Int(choice) + iStart - 1
+	date = Lectionary[i].Date
+	return
+}
+
+func chkChoice(s string) {
+	if IsInt(s) {
+		return
+	}
+	Help()
+}
+
+func DDisplay(date string) {
+	defer ColOff()
+	ColSet(BGreen)
+	fmt.Printf("Lectionary Date: ")
+	ColSet(Blue)
+	fmt.Println(date)
+}
+
+func Input(c *color.Color) (answer string) {
+	defer ColOff()
+	ColSet(c)
+	reader := bufio.NewReader(os.Stdin)
+	response, _ := reader.ReadString('\n')
+	answer = strings.TrimSpace(response)
+	return
+}
+
+func (p Pericope) Display() {
+	defer ColOff()
+	d := p.Date
+	r := p.Readings
+	s := r.Str()
+
+	ColSet(BGreen)
+	fmt.Printf("Pericopes for ")
+	ColSet(Blue)
+	fmt.Printf("%v", d)
+	ColSet(BGreen)
+	fmt.Println(":")
+	ColSet(BWhite)
+	fmt.Println(s)
+}
+
+func (r Readings) Display() {
+	defer ColOff()
+	s := r.Str()
+
+	ColSet(BGreen)
+	fmt.Printf("Pericopes: ")
+	ColSet(Blue)
+	fmt.Println(s)
 }
