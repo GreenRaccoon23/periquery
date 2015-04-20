@@ -115,8 +115,9 @@ func Help() {
 	w := strings.Repeat(" ", 15)
 	i := strings.Repeat(" ", 20)
 	fmt.Printf(
-		"%v\n  %v%q%v%v%v\n  %v%v%v\n%v%v\n%v%v\n  %v%v%v\n  %v%q%v%v%v\n  %v%v%v\n  %v%v%v\n",
-		"periquery <options>",
+		"%v\n%v\n  %v%q%v%v%v\n  %v%v%v\n%v%v\n%v%v\n  %v%v%v\n  %v%q%v%v%v\n  %v%v%v\n  %v%v%v\n",
+		"Usage: periquery <options>...",
+		"Find dates and readings in the standard lectionary.",
 		"-d ", today, ":  ",
 		strings.Repeat(" ", 10-len(today)), "Date to search in the lectionary",
 		"-l:",
