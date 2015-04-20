@@ -112,17 +112,25 @@ func BLine(c *color.Color) {
 
 func Help() {
 	defer os.Exit(0)
+	w := strings.Repeat(" ", 15)
+	i := strings.Repeat(" ", 20)
 	fmt.Printf(
-		"%v\n  %v%v%v\n%v\n  %v\n%v\n  %v\n%v\n  %v\n%v\n",
+		"%v\n  %v%q%v%v%v\n  %v%v%v\n%v%v\n%v%v\n  %v%v%v\n  %v%q%v%v%v\n  %v%v%v\n  %v%v%v\n",
 		"periquery <options>",
-		"-d=", today, ": (date)",
-		"      Date to search in the lectionary",
-		"-t=ESV: (translation)",
-		"      Translation to use",
-		"-l=false: (list)",
-		"      List all dates in the lectionary, starting with the one closest to the date specified in '-d'",
-		"-b=false: (browse)",
-		"      Launch found pericopes in a webbrowser",
+		"-d ", today, ":  ",
+		strings.Repeat(" ", 10-len(today)), "Date to search in the lectionary",
+		"-l:",
+		w, "Choose from a list of dates in the lectionary, where the",
+		i, "list begins with the date closest to today",
+		i, "or a date specified with '-d'",
+		"-b:",
+		w, "Launch found pericopes in a webbrowser",
+		"-t ", translation, ":",
+		strings.Repeat(" ", 12-len(translation)), "Translation to use",
+		"-c:",
+		w, "Colorize output",
+		"-v:",
+		w, "Display extra output",
 	)
 }
 

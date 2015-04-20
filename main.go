@@ -15,7 +15,9 @@ var (
 )
 
 func init() {
+	ChkHelp()
 	flags()
+	DFmt(&date)
 }
 
 func main() {
@@ -43,6 +45,31 @@ func main() {
 	if doBrowse {
 		urlbase := Concat(URL_PRE, translation, URL_MID)
 		passages.Browse(urlbase)
+	}
+}
+
+func DFmt(d *string) {
+	n := len(*d)
+	switch n {
+	case 10:
+		if IsByteLetter((*d)[4], "-") && IsByteLetter((*d)[6], "-") {
+			return
+		}
+	case 8:
+		if IsByteLetter((*d)[2], "-") && IsByteLetter((*d)[4], "-") {
+			*d = Concat("20", *d)
+			return
+		}
+	case 5:
+		if IsByteLetter((*d)[2], "-") {
+			*d = Concat("2015-", *d)
+			return
+		}
+	case 4:
+		if IsByteLetter((*d)[1], "-") {
+			*d = Concat("2015-0", *d)
+			return
+		}
 	}
 }
 

@@ -14,6 +14,18 @@ var (
 	doVerbose   bool
 )
 
+func ChkHelp() {
+	if len(os.Args) < 2 {
+		return
+	}
+
+	switch os.Args[1] {
+	case "-h", "h", "help", "--help", "-H", "H", "HELP", "--HELP", "-help", "--h", "--H":
+		Help()
+	}
+
+}
+
 /*func flags() {
 	var doListBrowse bool
 	flag.StringVar(&translation, "t", "ESV", "")
